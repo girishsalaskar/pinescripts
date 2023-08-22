@@ -1,0 +1,26 @@
+//TF : 15 Min, 30 Min
+// https://in.tradingview.com/script/JickYORh-VWMA-EMA-Crossover-Strategy-by-Kunal/
+//@version=4
+strategy("VWMA/EMA Crossover Strategy", shorttitle="VEMA Cross Strategy", overlay=true)
+
+// Inputs
+lengthVWMA = input(20, title="Length of VWMA")
+lengthEMA = input(5, title="Length of EMA")
+
+// Calculating VWMA
+vwap_numerator = sum(volume * close, lengthVWMA)
+vwma_val = vwap_numerator / sum(volume, lengthVWMA)
+
+// Calculating EMA
+ema_val = ema(close, lengthEMA)
+
+// Crossover logic
+if crossover(ema_val, vwma_val)
+    strategy.entry("Buy", strategy.long)
+    
+if crossunder(ema_val, vwma_val)
+    strategy.entry("Sell", strategy.short)
+
+// Plotting on chart
+plot(vwma_val, title="VWMA", color=color.blue)
+plot(ema_val, title="EMA", color=color.red)
