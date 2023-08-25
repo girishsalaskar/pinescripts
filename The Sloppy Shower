@@ -1,0 +1,36 @@
+//@version=3
+// https://in.tradingview.com/script/KWhYmlR7-The-Sloppy-Shower/
+// Best TF 5MIN for long term
+study("The Sloppy Shower", overlay=true, precision=0)
+
+
+//Original MA Concept by https://twitter.com/TraderX0 and https://twitter.com/redxbt
+//Edited for VWMAs by http://twitter.com/ShowerFourth 
+
+//inputs
+VWMA = input(127)
+priceH = high
+priceL = low
+priceC = close
+topPercent = input(4.64)
+bottomPercent = input(0.386)
+
+//calculates the SMA's
+VWMAt = vwma(priceH, VWMA)
+VWMAb = vwma(priceL, VWMA)
+VWMAm = vwma(priceC, VWMA)
+
+
+top = (VWMAt*topPercent)
+bottom = (VWMAb*bottomPercent)
+
+
+//calculate what bar color to use
+getBarColor = priceH > top ? red : priceL < bottom ? green : na
+
+
+//plot the EMA's and barcolour
+barcolor(color = getBarColor)
+plot(VWMAt, color=white, linewidth=1)
+plot(VWMAb, color=white, linewidth=1)
+plot(VWMAm, color=aqua, linewidth=1)
