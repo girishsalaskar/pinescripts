@@ -1,0 +1,77 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © Sensei368
+
+//@version=5
+indicator(title='Heat Zone Relative Volatility Index 2.0', shorttitle='HotColdRVI 2.0', format=format.price, precision=2, timeframe='')
+
+////////////
+// This simple little script is free to be used however desired.
+///////
+// Credit for this original version of the script is the only thing I'd truly like.
+///////
+// HOPE THIS HELPS BRING YOU MUCH FORTUNE & SUCCESS!!!
+////////////
+
+// Calculations
+length = input.int(10, minval=1)
+src = close
+len = 14
+stdDev = ta.stdev(src, length)
+upper = ta.ema(ta.change(src) <= 0 ? 0 : stdDev, len)
+lower = ta.ema(ta.change(src) > 0 ? 0 : stdDev, len)
+rvi = upper / (upper + lower) * 100
+
+// Hlines
+h2 = hline(80, 'Burn Band', color=#b71c1c, linestyle=hline.style_dashed)
+            // Upper Band
+
+h1 = hline(50, 'Just Right Line', color=color.new(#ffeb3b, 65), linestyle=hline.style_dotted, linewidth=2)
+            // Midline 
+
+h0 = hline(20, 'Freeze Band', color=#2962ff, linestyle=hline.style_dashed)
+            // Lower Band
+
+// Overheated Zone
+rviOverheatedShow = input(true, title='Show Overheated')
+rviOverheatedTop = plot(rviOverheatedShow ? 100 : na, title='Overheated Top Line', color=color.new(#b71c1c, 100), display=display.none)
+rviOverheatedBottom = plot(rviOverheatedShow ? 80 : na, title='Overheated Bottom Line', color=color.new(#b71c1c, 100))
+fill(rviOverheatedTop, rviOverheatedBottom, title='Overheated Zone', color=color.new(#b71c1c, 75))
+
+// Just Right Zone (Stable Zone)
+justRightTop = hline(55, 'Just Right Top', color=color.new(#b71c1c, 35), linestyle=hline.style_dotted)
+justRightBott = hline(45, 'Just Right Bottom', color=color.new(#2962ff, 35), linestyle=hline.style_dotted)
+
+// Freezing Zone
+rviFreezingShow = input(true, title='Show Freezing')
+rviFreezingTop = plot(rviFreezingShow ? 20 : na, title='Freezing Top Line', color=color.new(#2962ff, 100))
+rviFreezingBottom = plot(rviFreezingShow ? 0 : na, title='Freezing Bottom Line', color=color.new(#2962ff, 100), display=display.none)
+fill(rviFreezingTop, rviFreezingBottom, title='Freezing Zone', color=color.new(#2962ff, 75))
+
+// Background Color
+fill(h2, justRightTop, color=color.new(#b71c1c, 85), title='Hot')
+fill(justRightTop, justRightBott, color=color.new(#ffeb3b, 90), title='Just Right Zone')
+fill(justRightBott, h0, color=color.new(#2962ff, 85), title='Cold')
+
+// RVI Line
+offset = input.int(0, 'Offset', minval=-500, maxval=500)
+rviLine = plot(rvi, title='RVI', color=color.new(#008000, 0), offset=offset, linewidth=2)
+
+// Alerts
+alertcondition(rvi >= 80, title='Overheated', message='Price is Overheated')
+alertcondition(rvi <= 20, title='Freezing', message='Price is Freezing')
+alertcondition(rvi >= 45 and rvi <= 55, title='Just Right', message='Price is Just Right')
+alertcondition(rvi < 80 and rvi > 55, title='Hot', message='Price is Hot')
+alertcondition(rvi > 20 and rvi < 45, title='Cold', message='Price is Cold')
+alertcondition(rvi >= 80 or rvi <= 20, title='Overheated or Freezing', message='Price is Overheated or Freezing')
+
+Stabilizing = ta.crossunder(rvi, 55) or ta.crossover(rvi, 45)
+alertcondition(Stabilizing, title='Stabilizing', message='Price is Stablizing')
+Destabilizing = ta.crossover(rvi, 55) or ta.crossunder(rvi, 45)
+alertcondition(Destabilizing, title='Destabilizing', message='Price is Destabilizing')
+Overheating = ta.crossover(rvi, 80)
+alertcondition(Overheating, title='Overheating', message='Price is Overheating')
+StartToFreeze = ta.crossunder(rvi, 20)
+alertcondition(StartToFreeze, title='Starting to Freeze', message='Price is starting to Freeze')
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
